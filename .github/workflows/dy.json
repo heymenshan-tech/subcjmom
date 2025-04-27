@@ -1,0 +1,478 @@
+{
+  "dns": {
+    "servers": [
+      {
+        "tag": "dns_proxy",
+        "address": "tls://8.8.8.8",
+        "address_resolver": "dns_resolver",
+        "strategy": "ipv4_only",
+        "detour": "🚀 节点选择"
+      },
+      {
+        "tag": "dns_direct",
+        "address": "tls://1.1.1.1",
+        "address_resolver": "dns_resolver",
+        "strategy": "ipv4_only",
+        "detour": "DIRECT"
+      },
+      {
+        "tag": "dns_resolver",
+        "address": "1.1.1.1",
+        "detour": "DIRECT"
+      },
+      {
+        "tag": "dns_success",
+        "address": "rcode://success"
+      },
+      {
+        "tag": "dns_refused",
+        "address": "rcode://refused"
+      },
+      {
+        "tag": "dns_fakeip",
+        "address": "fakeip"
+      }
+    ],
+    "rules": [
+      {
+        "outbound": "any",
+        "server": "dns_resolver"
+      },
+      {
+        "rule_set": "geolocation-!cn",
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
+        "server": "dns_fakeip"
+      },
+      {
+        "rule_set": "geolocation-!cn",
+        "query_type": [
+          "CNAME"
+        ],
+        "server": "dns_proxy"
+      },
+      {
+        "query_type": [
+          "A",
+          "AAAA",
+          "CNAME"
+        ],
+        "invert": true,
+        "server": "dns_refused",
+        "disable_cache": true
+      }
+    ],
+    "final": "dns_direct",
+    "independent_cache": true,
+    "fakeip": {
+      "enabled": true,
+      "inet4_range": "198.18.0.0/15",
+      "inet6_range": "fc00::/18"
+    }
+  },
+  "ntp": {
+    "enabled": true,
+    "server": "time.apple.com",
+    "server_port": 123,
+    "interval": "30m",
+    "detour": "DIRECT"
+  },
+  "inbounds": [
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "0.0.0.0",
+      "listen_port": 2080
+    },
+    {
+      "type": "tun",
+      "tag": "tun-in",
+      "address": "172.19.0.1/30",
+      "auto_route": true,
+      "strict_route": true,
+      "stack": "mixed",
+      "sniff": true
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "selector",
+      "tag": "🚀 节点选择",
+      "outbounds": [
+        "DIRECT",
+        "REJECT",
+        "⚡ 自动选择",
+        "***更新日期：2025.04.17***",
+        "US_CA_01",
+        "US_CA_02",
+        "US_CA_03",
+        "KO_01",
+        "KO_02",
+        "JPN_01",
+        "JPN_02",
+        "JPN_03"
+      ]
+    },
+    {
+      "type": "urltest",
+      "tag": "⚡ 自动选择",
+      "outbounds": [
+        "***更新日期：2025.04.17***",
+        "US_CA_01",
+        "US_CA_02",
+        "US_CA_03",
+        "KO_01",
+        "KO_02",
+        "JPN_01",
+        "JPN_02",
+        "JPN_03"
+      ]
+    },
+    {
+      "type": "direct",
+      "tag": "DIRECT"
+    },
+    {
+      "type": "block",
+      "tag": "REJECT"
+    },
+    {
+      "type": "dns",
+      "tag": "dns-out"
+    },
+    {
+      "type": "trojan",
+      "tag": "***更新日期：2025.04.17***",
+      "server": "us-la-01.cjmom.us",
+      "server_port": 31178,
+      "password": "zEnyvyleum",
+      "network": "tcp",
+      "tcp_fast_open": false,
+      "tls": {
+        "enabled": true,
+        "server_name": "www.baidu.com",
+        "insecure": true
+      }
+    },
+    {
+      "tag": "US_CA_01",
+      "type": "shadowsocks",
+      "server": "us-la-01.cjmom.us",
+      "server_port": 49308,
+      "method": "xchacha20-ietf-poly1305",
+      "password": "wpJvwojCicODwrzCh8OLwqsFV8OvdSnDlsOxAcK+bynDrwXCo2bDiD8Ge8KeIV7Cng==",
+      "network": "tcp",
+      "tcp_fast_open": false
+    },
+    {
+      "tag": "US_CA_02",
+      "type": "vmess",
+      "server": "us-la-01.cjmom.us",
+      "server_port": 52914,
+      "uuid": "deab221b-0aa8-4980-85e8-933358535e4a",
+      "alter_id": 0,
+      "security": "auto",
+      "network": "tcp",
+      "tcp_fast_open": false,
+      "transport": {}
+    },
+    {
+      "type": "vless",
+      "tag": "US_CA_03",
+      "server": "us-la-01.cjmom.us",
+      "server_port": 31199,
+      "uuid": "aed73f61-bf00-4d2a-ae3a-3a17b77b29ce",
+      "tcp_fast_open": false,
+      "tls": {
+        "enabled": true,
+        "server_name": "www.yahoo.com",
+        "insecure": true,
+        "reality": {
+          "enabled": true,
+          "public_key": "lZlCZKE0KFeSYPhnGw-GOi3dAEtMgw_UtUGvaykUmiw",
+          "short_id": "4e5c"
+        },
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        }
+      },
+      "network": "tcp",
+      "flow": "xtls-rprx-vision"
+    },
+    {
+      "type": "vless",
+      "tag": "KO_01",
+      "server": "13.125.94.238",
+      "server_port": 27018,
+      "uuid": "394200f8-e6b2-46d9-9c72-d820e01e42a5",
+      "tcp_fast_open": false,
+      "tls": {
+        "enabled": true,
+        "server_name": "www.yahoo.com",
+        "insecure": false,
+        "reality": {
+          "enabled": true,
+          "public_key": "PBBZ7GsalxVujT9C8S3A6JPs-1meaJZ11uLv_eosAis",
+          "short_id": "3e7482c1"
+        },
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        }
+      },
+      "network": "tcp",
+      "flow": "xtls-rprx-vision"
+    },
+    {
+      "tag": "KO_02",
+      "type": "hysteria2",
+      "server": "13.125.94.238",
+      "server_port": 40071,
+      "password": "394200f8-e6b2-46d9-9c72-d820e01e42a5",
+      "tls": {
+        "enabled": true,
+        "insecure": true
+      },
+      "obfs": {}
+    },
+    {
+      "type": "vless",
+      "tag": "JPN_01",
+      "server": "54.92.80.253",
+      "server_port": 48752,
+      "uuid": "7f951532-dd6c-463f-99f0-d80bf762d37c",
+      "tcp_fast_open": false,
+      "tls": {
+        "enabled": true,
+        "server_name": "www.yahoo.com",
+        "insecure": true,
+        "reality": {
+          "enabled": true,
+          "public_key": "k5C7N6ATRJGpJPzK5ca5v833gVvtpSG72tIuoZhFEH8",
+          "short_id": "51a3e57a"
+        },
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        }
+      },
+      "network": "tcp",
+      "flow": "xtls-rprx-vision"
+    },
+    {
+      "tag": "JPN_02",
+      "type": "vmess",
+      "server": "54.92.80.253",
+      "server_port": 48753,
+      "uuid": "7f951532-dd6c-463f-99f0-d80bf762d37c",
+      "alter_id": 0,
+      "security": "auto",
+      "network": "tcp",
+      "tcp_fast_open": false,
+      "transport": {
+        "type": "ws",
+        "path": "7f951532-dd6c-463f-99f0-d80bf762d37c-vm",
+        "headers": {
+          "Host": "www.bing.com"
+        }
+      }
+    },
+    {
+      "tag": "JPN_03",
+      "type": "hysteria2",
+      "server": "54.92.80.253",
+      "server_port": 48754,
+      "password": "7f951532-dd6c-463f-99f0-d80bf762d37c",
+      "tls": {
+        "enabled": true,
+        "server_name": "www.bing.com",
+        "insecure": true
+      },
+      "obfs": {}
+    },
+    {
+      "type": "selector",
+      "tag": "🔍 谷歌服务",
+      "outbounds": [
+        "🚀 节点选择",
+        "DIRECT",
+        "REJECT",
+        "⚡ 自动选择",
+        "***更新日期：2025.04.17***",
+        "US_CA_01",
+        "US_CA_02",
+        "US_CA_03",
+        "KO_01",
+        "KO_02",
+        "JPN_01",
+        "JPN_02",
+        "JPN_03"
+      ]
+    },
+    {
+      "type": "selector",
+      "tag": "Ⓜ️ 微软服务",
+      "outbounds": [
+        "🚀 节点选择",
+        "DIRECT",
+        "REJECT",
+        "⚡ 自动选择",
+        "***更新日期：2025.04.17***",
+        "US_CA_01",
+        "US_CA_02",
+        "US_CA_03",
+        "KO_01",
+        "KO_02",
+        "JPN_01",
+        "JPN_02",
+        "JPN_03"
+      ]
+    },
+    {
+      "type": "selector",
+      "tag": "🍏 苹果服务",
+      "outbounds": [
+        "🚀 节点选择",
+        "DIRECT",
+        "REJECT",
+        "⚡ 自动选择",
+        "***更新日期：2025.04.17***",
+        "US_CA_01",
+        "US_CA_02",
+        "US_CA_03",
+        "KO_01",
+        "KO_02",
+        "JPN_01",
+        "JPN_02",
+        "JPN_03"
+      ]
+    },
+    {
+      "type": "selector",
+      "tag": "🌐 非中国",
+      "outbounds": [
+        "🚀 节点选择",
+        "DIRECT",
+        "REJECT",
+        "⚡ 自动选择",
+        "***更新日期：2025.04.17***",
+        "US_CA_01",
+        "US_CA_02",
+        "US_CA_03",
+        "KO_01",
+        "KO_02",
+        "JPN_01",
+        "JPN_02",
+        "JPN_03"
+      ]
+    },
+    {
+      "type": "selector",
+      "tag": "🐟 漏网之鱼",
+      "outbounds": [
+        "🚀 节点选择",
+        "DIRECT",
+        "REJECT",
+        "⚡ 自动选择",
+        "***更新日期：2025.04.17***",
+        "US_CA_01",
+        "US_CA_02",
+        "US_CA_03",
+        "KO_01",
+        "KO_02",
+        "JPN_01",
+        "JPN_02",
+        "JPN_03"
+      ]
+    }
+  ],
+  "route": {
+    "rule_set": [
+      {
+        "tag": "google",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://gh.sageer.me/https://raw.githubusercontent.com/lyc8503/sing-box-rules/refs/heads/rule-set-geosite/geosite-google.srs"
+      },
+      {
+        "tag": "microsoft",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://gh.sageer.me/https://raw.githubusercontent.com/lyc8503/sing-box-rules/refs/heads/rule-set-geosite/geosite-microsoft.srs"
+      },
+      {
+        "tag": "apple",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://gh.sageer.me/https://raw.githubusercontent.com/lyc8503/sing-box-rules/refs/heads/rule-set-geosite/geosite-apple.srs"
+      },
+      {
+        "tag": "geolocation-!cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://gh.sageer.me/https://raw.githubusercontent.com/lyc8503/sing-box-rules/refs/heads/rule-set-geosite/geosite-geolocation-!cn.srs"
+      },
+      {
+        "tag": "google-ip",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://gh.sageer.me/https://raw.githubusercontent.com/lyc8503/sing-box-rules/refs/heads/rule-set-geoip/geoip-google.srs"
+      }
+    ],
+    "rules": [
+      {
+        "protocol": "dns",
+        "outbound": "dns-out"
+      },
+      {
+        "clash_mode": "direct",
+        "outbound": "DIRECT"
+      },
+      {
+        "clash_mode": "global",
+        "outbound": "🚀 节点选择"
+      },
+      {
+        "rule_set": [
+          "google"
+        ],
+        "outbound": "🔍 谷歌服务"
+      },
+      {
+        "rule_set": [
+          "microsoft"
+        ],
+        "outbound": "Ⓜ️ 微软服务"
+      },
+      {
+        "rule_set": [
+          "apple"
+        ],
+        "outbound": "🍏 苹果服务"
+      },
+      {
+        "rule_set": [
+          "geolocation-!cn"
+        ],
+        "outbound": "🌐 非中国"
+      },
+      {
+        "rule_set": [
+          "google-ip"
+        ],
+        "outbound": "🔍 谷歌服务"
+      }
+    ],
+    "auto_detect_interface": true,
+    "final": "🐟 漏网之鱼"
+  },
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "store_fakeip": true
+    }
+  }
+}
